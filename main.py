@@ -6,4 +6,5 @@ root = Tk()
 root.title('Radikl')
 root.attributes("-fullscreen", True)
 root.configure(bg=bg)
-root.mainloop()
+# root.mainloop()
+drives = ['%s:' % d for d in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' if os.path.exists('%s:' % d)]
