@@ -13,7 +13,8 @@ def iconLoader():
     file_icon.thumbnail((size,size))
     file_icon = PIL.ImageTk.PhotoImage(file_icon)
     return drive_icon, folder_icon, file_icon
-def view(e, location):
+def view(e, location, stem):
+    stem.destroy()
     content = [[], []]
     items = os.listdir(location)
     for item in os.listdir(location):
@@ -24,24 +25,27 @@ def view(e, location):
             content[1].append('file')
     display(content)
 def display(content):
+    stem = Frame(root)
+    stem.configure(bg=bg)
     name, category = content
     r, c = 0, 0
     for item in range(len(content[0])):
         icon_choice = drive_icon if category[item]=='drive' else folder_icon if category[item]=='folder' else file_icon
-        icon = Label(root, image=icon_choice, bg=bg)
+        icon = Label(stem, image=icon_choice, bg=bg)
         icon.image = icon_choice
         icon.grid(row=r, column=c)
         item_name = name[item].split('\\')
         print(item_name)
-        icon.bind("<Double-Button-1>", lambda e, d=name[item]: view(e, d))
-        label = Label(root, font=(None, 10), text=item_name[len(item_name)-1], bg=bg, fg=fg)
+        icon.bind("<Double-Button-1>", lambda e, d=name[item], s=stem: view(e, d, s))
+        label = Label(stem, font=(None, 10), text=item_name[len(item_name)-1] if item_name[len(item_name)-1] else item_name[0], bg=bg, fg=fg)
         label.grid(row=r+1, column=c)
         c += 1
         if not(c%per_row):
             c = 0
             r += 2
+    stem.grid()
 def drive():
-    drives = ['%s:' % d for d in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' if os.path.exists('%s:' % d)]
+    drives = ['%s:\\' % d for d in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' if os.path.exists('%s:' % d)]
     content = [drives, ['drive' for d in range(len(drives))]]
     display(content)
 # tkinter globals
