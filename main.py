@@ -1,5 +1,5 @@
 # imports
-import os, PIL.Image, PIL.ImageTk, tkinter.ttk
+import os, PIL.Image, PIL.ImageTk, tkinter.ttk, gi
 from tkinter import *
 # functions
 def iconLoader():
@@ -72,4 +72,3 @@ for cd in range(len(os.getcwd().split('\\'))-1):
     os.chdir('../')
 drive()
 root.mainloop()
-# rough
