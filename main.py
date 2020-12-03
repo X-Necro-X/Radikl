@@ -1,28 +1,31 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QDialog, QGroupBox, QGridLayout, QVBoxLayout
 from PyQt5 import QtCore
 from PyQt5 import QtGui
-from PyQt5.QtCore import QRect 
-import sys
+from PyQt5 import QtWidgets
+import os
 
-class Window(QMainWindow):
+class Window(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowIcon(QtGui.QIcon('E:/Important/Folder Controller/Icons/Game Development.ico'))
+        self.setWindowIcon(QtGui.QIcon('icon.png'))
         self.setWindowTitle('Radikl')
-        self.base()
-        self.show()
-    def base(self):
-        btn = QPushButton('Click', self)
-        # btn.move(50, 50)
-        # btn.setGeometry(QRect(100, 100, 100, 100))
-        btn.setIcon(QtGui.QIcon('E:/Important/Folder Controller/Icons/Game Development.ico'))
-        # btn.setIconSize(QtCore.QSize(40, 40))
-        btn.setToolTip('oho')
-        btn.clicked.connect(self.clickme)
-    def clickme(self):
-        print('hola')
+        self.model = QtWidgets.QFileSystemModel()
+        path = self.model.setRootPath((QtCore.QDir.rootPath()))
+        # self.treeView = QtWidgets.QTreeView(self)
+        # self.treeView.setModel(self.model)
+        # self.treeView.setGeometry(0,0,1000,1000)
+        # self.treeView.setRootIndex(self.model.index(''))
+        # print(self.treeView.setTreePosition(0))
+        # self.treeView.setSortingEnabled(True)
+        # self.treeView.clicked.connect(self.dummy)
+        # self.model.fetchMore(self.model.index('c:/windows/'))
+        # print(self.model.fileName(self.model.index('.')))
+        # self.iter = QtCore.QDirIterator('.')
+        print(QtCore.QModelIndex.data(self.model.index('C:/Windows/')))# QtCore.QVariant.toString()
+        # print(self.model.index('').data().toString())
+        # self.show()
+        exit()
 
 if __name__ == "__main__":
-    app = QApplication([])
+    app = QtWidgets.QApplication([])
     window = Window()
     app.exec()
