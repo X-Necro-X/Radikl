@@ -29,17 +29,32 @@ class Window(QtWidgets.QMainWindow):
         self.mid.setStyleSheet('background-color: rgb(150,150,150)')
         self.mid.setGeometry(0, (self.dimensions.height()-self.dimensions.height()//10)//3, self.dimensions.width(), (self.dimensions.height()-self.dimensions.height()//10)//3)
         # branch 3
-        # self.bottom = QtWidgets.QFrame(self.stem)
-        # self.bottom.setStyleSheet('background-color: rgb(100,100,100)')
-        # self.bottom.setGeometry(0, 2*(self.dimensions.height()-self.dimensions.height()//10)//3, self.dimensions.width(), self.dimensions.height()-self.dimensions.height()//10)
+        self.bottom = QtWidgets.QFrame(self.stem)
+        self.bottom.setStyleSheet('background-color: rgb(200,200,200)')
+        self.bottom.setGeometry(0, 2*(self.dimensions.height()-self.dimensions.height()//10)//3, self.dimensions.width(), (self.dimensions.height()-self.dimensions.height()//10)//3)
         # app initializer
         self.drives = str(subprocess.check_output("fsutil fsinfo drives")).split()[1:-1]
-        self.drives.extend(self.drives)
-        self.drives.append(self.drives[0])
-        self.worker()
+        self.worker(self.drives)
         self.showMaximized() 
-    def worker(self):
-        info = self.extract(self.drives)
+    def worker(self, content):
+        info = self.extract(content)
+        self.topfn(info, 0)
+        self.midfn(info, 0)
+        self.bottomfn(info, 0)
+    def topfn(self, info, active):
+        size = len(info[0])
+        wunit = self.dimensions.width()//8
+        hunit = (self.dimensions.height()-self.dimensions.height()//10)//3
+        for index in range(size):
+            icon = QtWidgets.QLabel(self.top)
+            icon.setGeometry(wunit*index+wunit//2, 0, wunit, info[1][index].actualSize(QtCore.QSize(wunit, hunit)).height())
+            icon.setPixmap(QtGui.QIcon.pixmap(info[1][index], info[1][index].actualSize(QtCore.QSize(wunit, hunit))))
+            icon.setAlignment(QtCore.Qt.AlignCenter)
+            name = QtWidgets.QLabel(self.top)
+            name.setGeometry(wunit*index+wunit//2, info[1][index].actualSize(QtCore.QSize(wunit, hunit)).height(), wunit, self.top.height()-info[1][index].actualSize(QtCore.QSize(wunit, hunit)).height())
+            name.setText(info[0][index])
+            name.setAlignment(QtCore.Qt.AlignCenter)
+    def midfn(self, info, active):
         size = len(info[0])
         wunit = self.dimensions.width()//8
         hunit = (self.dimensions.height()-self.dimensions.height()//10)//3
@@ -52,12 +67,19 @@ class Window(QtWidgets.QMainWindow):
             name.setGeometry(wunit*index+wunit//2, info[1][index].actualSize(QtCore.QSize(wunit, hunit)).height(), wunit, self.mid.height()-info[1][index].actualSize(QtCore.QSize(wunit, hunit)).height())
             name.setText(info[0][index])
             name.setAlignment(QtCore.Qt.AlignCenter)
-    def top(self, items, active):
-        pass
-    def middle(self, items, active):
-        pass
-    def bottom(self, items):
-        pass
+    def bottomfn(self, info, active):
+        size = len(info[0])
+        wunit = self.dimensions.width()//8
+        hunit = (self.dimensions.height()-self.dimensions.height()//10)//3
+        for index in range(size):
+            icon = QtWidgets.QLabel(self.bottom)
+            icon.setGeometry(wunit*index+wunit//2, 0, wunit, info[1][index].actualSize(QtCore.QSize(wunit, hunit)).height())
+            icon.setPixmap(QtGui.QIcon.pixmap(info[1][index], info[1][index].actualSize(QtCore.QSize(wunit, hunit))))
+            icon.setAlignment(QtCore.Qt.AlignCenter)
+            name = QtWidgets.QLabel(self.bottom)
+            name.setGeometry(wunit*index+wunit//2, info[1][index].actualSize(QtCore.QSize(wunit, hunit)).height(), wunit, self.bottom.height()-info[1][index].actualSize(QtCore.QSize(wunit, hunit)).height())
+            name.setText(info[0][index])
+            name.setAlignment(QtCore.Qt.AlignCenter)
     def extract(self, items):
         return [list(map(lambda x: self.model.fileName(self.model.index(x)), items)), list(map(lambda x: self.model.fileIcon(self.model.index(x)), items))]
 if __name__ == "__main__":
