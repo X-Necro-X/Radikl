@@ -14,24 +14,24 @@ class Window(QtWidgets.QMainWindow):
         self.dimensions = QtGui.QScreen.availableGeometry(QtGui.QGuiApplication.primaryScreen())
         # root
         self.root = QtWidgets.QFrame(self)
-        self.root.setStyleSheet('background-color: rgb(50,50,50)')
+        self.root.setStyleSheet('background-color: rgb(0,0,0)')
         self.root.setGeometry(0, 0, self.dimensions.width(), self.dimensions.height())
         # stem
         self.stem = QtWidgets.QFrame(self.root)
         self.stem.setStyleSheet('background-color: rgb(50,50,50)')
         self.stem.setGeometry(0, self.dimensions.height()//10, self.dimensions.width(), self.dimensions.height()-self.dimensions.height()//10)
         # branch 1
-        self.branch1 = QtWidgets.QFrame(self.stem)
-        self.branch1.setStyleSheet('background-color: rgb(100,100,100)')
-        self.branch1.setGeometry(0, 0, self.dimensions.width(), (self.dimensions.height()-self.dimensions.height()//10)//3)
+        self.top = QtWidgets.QFrame(self.stem)
+        self.top.setStyleSheet('background-color: rgb(100,100,100)')
+        self.top.setGeometry(0, 0, self.dimensions.width(), (self.dimensions.height()-self.dimensions.height()//10)//3)
         # branch 2
-        self.branch2 = QtWidgets.QFrame(self.stem)
-        self.branch2.setStyleSheet('background-color: rgb(150,150,150)')
-        self.branch2.setGeometry(0, (self.dimensions.height()-self.dimensions.height()//10)//3, self.dimensions.width(), 2*(self.dimensions.height()-self.dimensions.height()//10)//3)
+        self.mid = QtWidgets.QFrame(self.stem)
+        self.mid.setStyleSheet('background-color: rgb(150,150,150)')
+        self.mid.setGeometry(0, (self.dimensions.height()-self.dimensions.height()//10)//3, self.dimensions.width(), (self.dimensions.height()-self.dimensions.height()//10)//3)
         # branch 3
-        self.branch3 = QtWidgets.QFrame(self.stem)
-        self.branch3.setStyleSheet('background-color: rgb(100,100,100)')
-        self.branch3.setGeometry(0, 2*(self.dimensions.height()-self.dimensions.height()//10)//3, self.dimensions.width(), self.dimensions.height()-self.dimensions.height()//10)
+        # self.bottom = QtWidgets.QFrame(self.stem)
+        # self.bottom.setStyleSheet('background-color: rgb(100,100,100)')
+        # self.bottom.setGeometry(0, 2*(self.dimensions.height()-self.dimensions.height()//10)//3, self.dimensions.width(), self.dimensions.height()-self.dimensions.height()//10)
         # app initializer
         self.drives = str(subprocess.check_output("fsutil fsinfo drives")).split()[1:-1]
         self.drives.extend(self.drives)
@@ -44,13 +44,14 @@ class Window(QtWidgets.QMainWindow):
         wunit = self.dimensions.width()//8
         hunit = (self.dimensions.height()-self.dimensions.height()//10)//3
         for index in range(size):
-            icon = QtWidgets.QLabel(self.branch2)
-            icon.setGeometry(wunit*index+wunit//2, 0, wunit*(index+1)+wunit//2, info[1][index].actualSize(QtCore.QSize(wunit, hunit)).height())
+            icon = QtWidgets.QLabel(self.mid)
+            icon.setGeometry(wunit*index+wunit//2, 0, wunit, info[1][index].actualSize(QtCore.QSize(wunit, hunit)).height())
             icon.setPixmap(QtGui.QIcon.pixmap(info[1][index], info[1][index].actualSize(QtCore.QSize(wunit, hunit))))
-            name = QtWidgets.QLabel(self.branch2)
-            name.setGeometry(wunit*index+wunit//2, info[1][index].actualSize(QtCore.QSize(wunit, hunit)).height(), wunit*(index+1)+wunit//2, hunit)
+            icon.setAlignment(QtCore.Qt.AlignCenter)
+            name = QtWidgets.QLabel(self.mid)
+            name.setGeometry(wunit*index+wunit//2, info[1][index].actualSize(QtCore.QSize(wunit, hunit)).height(), wunit, self.mid.height()-info[1][index].actualSize(QtCore.QSize(wunit, hunit)).height())
             name.setText(info[0][index])
-            break
+            name.setAlignment(QtCore.Qt.AlignCenter)
     def top(self, items, active):
         pass
     def middle(self, items, active):
