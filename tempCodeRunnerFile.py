@@ -53,19 +53,14 @@ class Window(QtWidgets.QMainWindow):
         self.drives = str(subprocess.check_output("fsutil fsinfo drives")).split()[1:-1]
         self.switch = [0, 1, 0]
         self.stacks = [[], self.drives, []]
-        self.pointers = [0, 0, 0]
+        self.pointers = [0, len(self.drives)//2, 0]
         self.worker()
         self.showMaximized()
-    def reseter(self, level):
-        for layer in range(5):
-            self.icons[level][layer].setIcon(QtGui.QIcon())
-            self.names[level][layer].clear()
-    def extract(self, items):
-        return [list(map(lambda x: self.model.fileName(self.model.index(x)), items)), list(map(lambda x: self.model.fileIcon(self.model.index(x)), items))]
     def worker(self):
         if self.switch[0]:
             self.display(level=0, items=self.extract(self.stacks[0]))
         if self.switch[1]:
+            self.icons[1][3].destroy()
             self.display(level=1, items=self.extract(self.stacks[1]))
         if self.switch[2]:
             self.display(level=2, items=self.extract(self.stacks[2]))
@@ -74,10 +69,14 @@ class Window(QtWidgets.QMainWindow):
         for item in range(self.pointers[level]-2, self.pointers[level]):
             if item > -1:
                 self.printer(items, item, layer, level)
+            else:
+                break
             layer+=1
         for item in range(self.pointers[level], self.pointers[level]+3):
             if item < len(items[0]):
                 self.printer(items, item, layer, level)
+            else:
+                break
             layer+=1
     def printer(self, items, item, layer, level):
         self.icons[level][layer].setIcon(items[1][item])
@@ -87,7 +86,7 @@ class Window(QtWidgets.QMainWindow):
         if level == 0:
             self.icons[level][layer].clicked.connect(self.clickTop)
         if level == 1:
-            self.icons[level][layer].clicked.connect(lambda state, item=item, level=level: self.clickMid(item, level))
+            self.icons[level][layer].clicked.connect(lambda state, item=item: self.clickMid(item))
         if level == 2:
             self.icons[level][layer].clicked.connect(self.clickBottom)
         if layer == 3 and level != 2:
@@ -98,23 +97,15 @@ class Window(QtWidgets.QMainWindow):
             icon.setFlat(True)
     def clickTop(self):
         print('Top')
-    def clickMid(self, item, level):
+    def clickMid(self, item):
         if item == self.pointers[1]:
             if os.path.isfile(self.stacks[1][self.pointers[1]]):
                 os.startfile(self.stacks[1][self.pointers[1]])
-            else:
-                self.stacks[2] = list(map(lambda x: os.path.join(self.stacks[1][self.pointers[1]], x), os.listdir(self.stacks[1][self.pointers[1]])))
-                self.switch = [0, 0, 1]
-                self.worker()
         else:
-            self.reseter(level)
             self.pointers[1] = item
+            # self.bottom(os.listdir)
             self.switch = [0, 1, 0]
             self.worker()
-            if os.path.isdir(self.stacks[1][self.pointers[1]]):
-                self.stacks[2] = list(map(lambda x: os.path.join(self.stacks[1][self.pointers[1]], x), os.listdir(self.stacks[1][self.pointers[1]])))
-                self.switch = [0, 0, 1]
-                self.worker()
     def clickBottom(self):
         print('Bottom')
     def shiftLeft(self):
@@ -123,6 +114,8 @@ class Window(QtWidgets.QMainWindow):
         print('Right')
     def openDir(self, level, layer):
         print(level, layer)
+    def extract(self, items):
+        return [list(map(lambda x: self.model.fileName(self.model.index(x)), items)), list(map(lambda x: self.model.fileIcon(self.model.index(x)), items)), list(map(lambda x: self.model.filePath(self.model.index(x)), items))]
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
     window = Window()
