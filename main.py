@@ -35,57 +35,91 @@ class Window(QtWidgets.QMainWindow):
                 self.layers[level][layer].setGeometry(self.dimensions.width()//7*layer, 0, self.dimensions.width()//7, self.levels[level].height())
         # app initializer
         self.drives = str(subprocess.check_output("fsutil fsinfo drives")).split()[1:-1]
-        # self.worker(self.drives)
-        a = os.listdir('E:\Games')[3:]
-        # exit()
-        self.worker(list(map(lambda x: 'E:/Games/'+x, a)))
-        self.showMaximized() 
-    def worker(self, content):
-        items = self.extract(content)
-        self.display(level=0, items=items, active=2)
-        self.display(level=1, items=items)
-        self.display(level=2, items=items, active=1)
-    def display(self, level, items, active=3):
+        self.switch = [0, 1, 0]
+        self.pointers = [0, len(self.drives)//2, 0]
+        self.stacks = [[], self.drives, []]
+        self.worker()
+        self.showMaximized()
+    def worker(self):
+        if self.switch[0]:
+            self.display(level=0, items=self.extract(self.stacks[0]))
+        if self.switch[1]:
+            self.display(level=1, items=self.extract(self.stacks[1]))
+        if self.switch[2]:
+            self.display(level=2, items=self.extract(self.stacks[2]))
+    def display(self, level, items):
+        # left button
         icon = QtWidgets.QPushButton(self.layers[level][0])
         icon.setGeometry(0, 0, self.layers[level][0].width(), self.layers[level][0].height())
         icon.setIcon(QtGui.QIcon('double-left.png'))
         icon.setIconSize(QtCore.QSize(self.layers[level][0].width()//5, self.layers[level][0].height()//5))
         icon.setFlat(True)
         icon.clicked.connect(self.shiftLeft)
-        layer = [3,3,2,2,1][len(items[0])-1] 
-        for item in range(len(items[0])):
-            icon = QtWidgets.QPushButton(self.layers[level][layer])
-            icon.setGeometry(0, 0, self.layers[level][layer].width(), 7*self.layers[level][layer].height()//10)
-            icon.setIcon(items[1][item])
-            icon.setIconSize(items[1][item].availableSizes()[3])
-            icon.setFlat(True)
-            icon.clicked.connect(lambda: self.openDir(1))
-            name = QtWidgets.QLabel(self.layers[level][layer])
-            name.setGeometry(0, 7*self.layers[level][layer].height()//10, self.layers[level][layer].width(), 2*self.layers[level][layer].height()//10)
-            name.setText(items[0][item])
-            name.setFont(QtGui.QFont('Arial', self.layers[level][layer].height()//25))
-            name.setAlignment(QtCore.Qt.AlignCenter)
-            if layer == active and level != 2:
-                downArrow = QtWidgets.QPushButton(self.layers[level][layer])
-                downArrow.setGeometry(0, 9*self.layers[level][layer].height()//10, self.layers[level][layer].width(), 1*self.layers[level][layer].height()//10)
-                downArrow.setIcon(QtGui.QIcon('double-down.png'))
-                downArrow.setIconSize(QtCore.QSize(self.layers[level][layer].width(), 1*self.layers[level][layer].height()//10))
-                downArrow.setFlat(True)
-            layer += 1
+        # items
+        layer = 1
+        for item in range(self.pointers[level]-2, self.pointers[level]):
+            if item > -1:
+                self.printer(items, item, layer, level)
+            layer+=1
+        for item in range(self.pointers[level], self.pointers[level]+3):
+            if item < len(items[0]):
+                self.printer(items, item, layer, level)
+            layer+=1
+        # right button
         icon = QtWidgets.QPushButton(self.layers[level][6])
         icon.setGeometry(0, 0, self.layers[level][6].width(), self.layers[level][6].height())
         icon.setIcon(QtGui.QIcon('double-right.png'))
         icon.setIconSize(QtCore.QSize(self.layers[level][6].width()//5, self.layers[level][6].height()//5))
         icon.setFlat(True)
         icon.clicked.connect(self.shiftRight)
+    def printer(self, items, item, layer, level):
+        # icon
+        icon = QtWidgets.QPushButton(self.layers[level][layer])
+        icon.setGeometry(0, 0, self.layers[level][layer].width(), 7*self.layers[level][layer].height()//10)
+        icon.setIcon(items[1][item])
+        icon.setIconSize(items[1][item].availableSizes()[3])
+        icon.setFlat(True)
+        # name
+        name = QtWidgets.QLabel(self.layers[level][layer])
+        name.setGeometry(0, 7*self.layers[level][layer].height()//10, self.layers[level][layer].width(), 2*self.layers[level][layer].height()//10)
+        name.setText(items[0][item])
+        name.setFont(QtGui.QFont('Arial', self.layers[level][layer].height()//25))
+        name.setAlignment(QtCore.Qt.AlignCenter)
+        # events
+        if level == 0:
+            icon.clicked.connect(self.clickTop)
+        if level == 1:
+            icon.clicked.connect(lambda state, item=item: self.clickMid(item))
+        if level == 2:
+            icon.clicked.connect(self.clickBottom)
+        # down arrow
+        if layer == 3 and level != 2:
+            downArrow = QtWidgets.QPushButton(self.layers[level][layer])
+            downArrow.setGeometry(0, 9*self.layers[level][layer].height()//10, self.layers[level][layer].width(), 1*self.layers[level][layer].height()//10)
+            downArrow.setIcon(QtGui.QIcon('double-down.png'))
+            downArrow.setIconSize(QtCore.QSize(self.layers[level][layer].width(), 1*self.layers[level][layer].height()//10))
+            downArrow.setFlat(True)
+    def clickTop(self):
+        print('Top')
+    def clickMid(self, item):
+        if item == self.pointers[1]:
+            if os.path.isfile(self.stacks[1][self.pointers[1]]):
+                os.startfile(self.stacks[1][self.pointers[1]])
+        else:
+            self.pointers[1] = item
+            # self.bottom(os.listdir)
+            self.switch = [0, 1, 0]
+            self.worker()
+    def clickBottom(self):
+        print('Bottom')
     def shiftLeft(self):
         print('Left')
     def shiftRight(self):
         print('Right')
-    def openDir(self, item):
-        print(item)
+    def openDir(self, level, layer):
+        print(level, layer)
     def extract(self, items):
-        return [list(map(lambda x: self.model.fileName(self.model.index(x)), items)), list(map(lambda x: self.model.fileIcon(self.model.index(x)), items))]
+        return [list(map(lambda x: self.model.fileName(self.model.index(x)), items)), list(map(lambda x: self.model.fileIcon(self.model.index(x)), items)), list(map(lambda x: self.model.filePath(self.model.index(x)), items))]
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
     window = Window()
