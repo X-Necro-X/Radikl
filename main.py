@@ -52,16 +52,20 @@ class Window(QtWidgets.QMainWindow):
         self.worker()
         self.showMaximized()
     def starter(self, level):
-        if level != 2:
-            icon = QtWidgets.QPushButton(self.levels[level])
-            icon.setGeometry(3*self.dimensions.width()//7, 9*self.levels[level].height()//10, self.dimensions.width()//7, self.levels[level].height()//10)
-            icon.setIcon(QtGui.QIcon('double-down.png'))
-            icon.setIconSize(QtCore.QSize(self.dimensions.width()//7, self.levels[level].height()//10))
-            icon.setFlat(True)
-            if level == 0:
-                icon.clicked.connect(self.clickTop)
-            else:
-                icon.clicked.connect(self.clickBottom)
+        if level == 0:
+            self.topdarrow = QtWidgets.QPushButton(self.levels[level])
+            self.topdarrow.setGeometry(3*self.dimensions.width()//7, 9*self.levels[level].height()//10, self.dimensions.width()//7, self.levels[level].height()//10)
+            self.topdarrow.setIcon(QtGui.QIcon('double-down.png'))
+            self.topdarrow.setIconSize(QtCore.QSize(self.dimensions.width()//7, self.levels[level].height()//10))
+            self.topdarrow.setFlat(True)
+            self.topdarrow.clicked.connect(self.clickTop)
+        if level == 1:
+            self.bottomdarrow = QtWidgets.QPushButton(self.levels[level])
+            self.bottomdarrow.setGeometry(3*self.dimensions.width()//7, 9*self.levels[level].height()//10, self.dimensions.width()//7, self.levels[level].height()//10)
+            self.bottomdarrow.setIcon(QtGui.QIcon('double-down.png'))
+            self.bottomdarrow.setIconSize(QtCore.QSize(self.dimensions.width()//7, self.levels[level].height()//10))
+            self.bottomdarrow.setFlat(True)
+            self.bottomdarrow.clicked.connect(self.clickBottom)
         for layer in range(5):
             self.icons[level].append(QtWidgets.QPushButton(self.levels[level]))
             self.names[level].append(QtWidgets.QLabel(self.levels[level]))
@@ -102,6 +106,14 @@ class Window(QtWidgets.QMainWindow):
                     self.icons[2][2].setIconSize(QtCore.QSize(100, 100))
             return res
     def worker(self):
+        if self.stacks[0]:
+            self.topdarrow.show()
+        else:
+            self.topdarrow.hide()
+        if self.stacks[2]:
+            self.bottomdarrow.show()
+        else:
+            self.bottomdarrow.hide()
         if self.switch[0]:
             self.display(level=0, items=self.extract(self.stacks[0]))
         if self.switch[1]:
@@ -175,17 +187,15 @@ class Window(QtWidgets.QMainWindow):
             self.stacks[1] = self.stacks[2]
             self.pointers[1] = self.pointers[2]
             try:
-                children = os.listdir(self.stacks[2][self.pointers[2]])
+                if os.path.isfile(self.stacks[2][self.pointers[2]]) or not(os.listdir(self.stacks[2][self.pointers[2]])):
+                    self.stacks[2] = []
+                else:
+                    self.stacks[2] = self.pathFinder(self.stacks[2][self.pointers[2]], 1)
             except Exception as e:
                 if type(e) == PermissionError:
                     self.stacks[2] = []
                     self.icons[2][2].setIcon(QtGui.QIcon('not-permitted.png'))
                     self.icons[2][2].setIconSize(QtCore.QSize(100, 100))
-            else:
-                if os.path.isfile(self.stacks[2][self.pointers[2]]) or not(children):
-                    self.stacks[2] = []
-                else:
-                    self.stacks[2] = self.pathFinder(self.stacks[2][self.pointers[2]], 1)
             self.pointers[2] = 0
             self.switch = [1, 1, 1]
             self.worker()
@@ -205,8 +215,6 @@ class Window(QtWidgets.QMainWindow):
         self.pointers[2] = 0
         self.switch = [0, 1, 1]
         self.worker()
-    def openDir(self, level, layer):
-        print(level, layer)
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
     window = Window()
