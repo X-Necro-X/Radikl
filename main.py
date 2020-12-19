@@ -126,7 +126,7 @@ class Window(QtWidgets.QMainWindow):
             if item < len(items[0]) and item > -1:
                 self.icons[level][layer].setIcon(items[1][item])
                 self.icons[level][layer].setIconSize(QtCore.QSize(320, 320))
-                self.names[level][layer].setText(items[0][item])
+                self.names[level][layer].setText(items[0][item] if len(items[0][item])<20 else items[0][item][:20]+'...')
                 self.names[level][layer].setFont(QtGui.QFont('Arial', self.names[level][layer].height()//5))
             layer+=1
     def clickTop(self):
