@@ -50,6 +50,7 @@ class Window(QtWidgets.QMainWindow):
         self.stacks = [[], self.drives, []]
         self.pointers = [0, 0, 0]
         self.worker()
+        self.controller()
         self.showMaximized()
     def starter(self, level):
         if level == 0:
@@ -215,6 +216,8 @@ class Window(QtWidgets.QMainWindow):
         self.pointers[2] = 0
         self.switch = [0, 1, 1]
         self.worker()
+    def controller(self):
+        pass
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
     window = Window()
