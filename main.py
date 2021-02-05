@@ -1,3 +1,6 @@
+# Necro(ネクロ)
+# sidmishra94540@gmail.com
+
 # imports
 from PyQt5 import QtCore
 from PyQt5 import QtGui
